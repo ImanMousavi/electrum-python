@@ -12,7 +12,6 @@ from connectrum import ElectrumErrorResponse
 
 
 async def interact(conn, svr, connector, method, args, verbose=False):
-
     try:
         await connector
     except Exception as e:
@@ -22,11 +21,11 @@ async def interact(conn, svr, connector, method, args, verbose=False):
     print("\nConnected to: %s\n" % svr)
 
     if verbose:
-        donate = await conn.RPC("server.donation_address")
+        donate = await conn.RPC('server.donation_address')
         if donate:
             print("Donations: " + donate)
 
-        motd = await conn.RPC("server.banner")
+        motd = await conn.RPC('server.banner')
         print("\n---\n%s\n---" % motd)
 
     # XXX TODO do a simple REPL here
@@ -47,53 +46,41 @@ async def interact(conn, svr, connector, method, args, verbose=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Interact with an electrum server")
-    parser.add_argument(
-        "method", default=None, help='"blockchain.numblocks.subscribe" or similar'
-    )
-    parser.add_argument("args", nargs="*", default=[], help="Arguments for method")
-    parser.add_argument(
-        "--server",
-        default="cluelessperson.com",
-        help="Hostname of Electrum server to use",
-    )
-    parser.add_argument(
-        "--protocol", default="s", help="Protocol code: t=TCP Cleartext, s=SSL, etc"
-    )
-    parser.add_argument(
-        "--port", default=None, help="Port number to override default for protocol"
-    )
-    parser.add_argument(
-        "--tor",
-        default=False,
-        action="store_true",
-        help="Use local Tor proxy to connect",
-    )
+    parser = argparse.ArgumentParser(description='Interact with an electrum server')
+    parser.add_argument('method', default=None,
+                        help='"blockchain.numblocks.subscribe" or similar')
+    parser.add_argument('args', nargs="*", default=[],
+                        help='Arguments for method')
+    parser.add_argument('--server', default='cluelessperson.com',
+                        help='Hostname of Electrum server to use')
+    parser.add_argument('--protocol', default='s',
+                        help='Protocol code: t=TCP Cleartext, s=SSL, etc')
+    parser.add_argument('--port', default=None,
+                        help='Port number to override default for protocol')
+    parser.add_argument('--tor', default=False, action="store_true",
+                        help='Use local Tor proxy to connect')
 
     args = parser.parse_args()
 
     import logging
 
-    # convert to our datastruct about servers.
-    svr = ServerInfo(
-        args.server,
-        args.server,
-        ports=((args.protocol + str(args.port)) if args.port else args.protocol),
-    )
 
+    # convert to our datastruct about servers.
+    svr = ServerInfo(args.server, args.server,
+                     ports=((args.protocol + str(args.port)) if args.port else args.protocol))
+    # import pdb
+    # pdb.set_trace()
     loop = asyncio.get_event_loop()
 
     conn = StratumClient()
-    connector = conn.connect(
-        svr, args.protocol, use_tor=svr.is_onion, disable_cert_verify=True
-    )
+    connector = conn.connect(svr, args.protocol, use_tor=svr.is_onion, disable_cert_verify=True)
 
     loop.run_until_complete(interact(conn, svr, connector, args.method, args.args))
 
     loop.close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 
 # EOF

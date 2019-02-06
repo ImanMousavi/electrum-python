@@ -1,0 +1,4 @@
+python-bitcoinrpc
+cprint
+pycoin
+connectrum
